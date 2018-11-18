@@ -47,7 +47,7 @@ export default class Engine {
     // let frustumSize = 1000;
     // let aspect = this.state.width / this.state.height;
     //let camera = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, -20000, 20000 );
-    let camera = new THREE.PerspectiveCamera( 50, 1, 0.1, 200000 ); 
+    let camera = new THREE.PerspectiveCamera( 50, 1, 0.1, 200000000 ); 
     camera.position.x = 0;
     camera.position.y = 500;
     camera.position.z = 0;

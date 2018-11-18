@@ -5,6 +5,7 @@ import POI from "./POI";
 
 
 export default class TerrainContainer {
+
   setCellData(data: any): any {
     this.terrain.setCellData(data);
     this.update();
@@ -18,11 +19,13 @@ export default class TerrainContainer {
   scene: Scene;
   borders: Array<Border> | undefined;
   pois: Array<POI> | undefined;
+  cellBorders: Map<number, Array<Border>>;
   constructor(terrain: Terrain, scene: Scene){
     this.terrain = terrain;
     this.scene = scene;
     this.borders = undefined;
     this.pois = undefined;
+    this.cellBorders = new Map();
   }
   showBorders = (toggle: boolean) => {
     this.borders && this.borders.map( (b) =>{
@@ -35,8 +38,19 @@ export default class TerrainContainer {
       let start = this.terrain.geom.vertices[edge.start];
       let end = this.terrain.geom.vertices[edge.end];
       let border = new Border(start,end, edge);
-      // border.register(this.scene);
       g.add(border.getObject());
+      if (edge.edge && edge.edge.lSite){
+        if (!this.cellBorders[edge.edge.lSite.voronoiId]){
+          this.cellBorders[edge.edge.lSite.voronoiId] = new Array();
+        }
+        this.cellBorders[edge.edge.lSite.voronoiId].push(border);
+      }
+      if (edge.edge && edge.edge.rSite){
+        if (!this.cellBorders[edge.edge.rSite.voronoiId]){
+          this.cellBorders[edge.edge.rSite.voronoiId] = new Array();
+        }
+        this.cellBorders[edge.edge.rSite.voronoiId].push(border);
+      }
       return border;
     } );
     this.scene.add(g);
@@ -62,7 +76,6 @@ export default class TerrainContainer {
   initPois(): any {
     this.pois = this.terrain.cells.map( (cell) => {
       let sphere = new POI(cell.cell.site.x, this.terrain.getVertexHeight(cell.center), cell.cell.site.y, cell.center);
-      sphere.register(this.scene);
       return sphere;
     } );
   }
@@ -72,7 +85,13 @@ export default class TerrainContainer {
       this.updatePois();
     }else{
       this.pois.map( (b) =>{ 
-        b.setPos({x: b.x, y: this.terrain.getVertexHeight(b.vertex) + 3, z: b.z})
+        if (this.terrain.getVertexHeight(b.vertex) > 0){
+          b.setPos({x: b.x, y: this.terrain.getVertexHeight(b.vertex) + 30, z: b.z});
+          b.register(this.scene);
+        }else{
+          b.deregister(this.scene);
+        }
+        
       });
     }
   }

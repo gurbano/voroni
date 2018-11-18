@@ -17,8 +17,8 @@ export default class MapLoader {
       let imgd = context!.getImageData(0, 0, img.width, img.height);
       let pix = imgd.data;
       let j = 0;
-      let max = 0;
-      let min = 0;
+      let max = -Infinity;
+      let min = Infinity;
       for (let i = 0, n = pix.length; i < n; i += (4)) {
           let all = pix[i]+pix[i+1]+pix[i+2];
           //console.log(all);
@@ -26,6 +26,7 @@ export default class MapLoader {
           min = Math.min(min, all);
           data[j++] = all;
       }
+      console.log(min, max);
       data = data.map( d => (d - min )/ (max - min) );
       return data;
   }
@@ -48,7 +49,7 @@ export default class MapLoader {
       data[index] = {height: terrain.cells[index].data.height + rng.nextRange(-20, 50) };
     });
     */
-   let maxh = 5000;
+   let maxh = 7500;
    let ret = new Map<number,any>();
     this.load_image(level, terrain.size ,(data: Float32Array, width: number, height: number) => {
       new Array(terrain.cells.length).fill(0).forEach( (_, index) => {

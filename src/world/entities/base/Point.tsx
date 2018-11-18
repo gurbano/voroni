@@ -1,5 +1,5 @@
 import BaseEntity from "../BaseEntity";
-import { Object3D, Mesh, MeshNormalMaterial, DoubleSide, Geometry, BufferGeometry, CubeGeometry } from "three";
+import { Object3D, Mesh,  Geometry, BufferGeometry, CubeGeometry, MeshLambertMaterial, Color } from "three";
 
 
 
@@ -15,15 +15,12 @@ export default class Point extends BaseEntity{
     
   }
   generateMaterial = () => {
-    return new MeshNormalMaterial({
-      // color: 0xff66ff,
-      // shading: THREE.SmoothShading,
-      // ambient: 0x555555,
-      // specular: 0xffffff,
-      side: DoubleSide
-    });
+    return new MeshLambertMaterial({//2
+      color: new Color().setRGB(1, 0, 0),
+      flatShading: false,
+    })
   }
   generateGeometry = (): Geometry | BufferGeometry => {  
-    return new CubeGeometry(1, 2, 1);
+    return new CubeGeometry(100, 100, 100);
   }
 }

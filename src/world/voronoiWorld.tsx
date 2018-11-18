@@ -3,8 +3,9 @@ import { VDiagram, VCell, VEdge, VVErtex, VHEdge } from "../types/types";
 import VoronoiUtils from "./voronoiUtils";
 const voronoi = require('../vendor/voronoi');
 
-const SIZE = 60 * 1000;
-const SITES = 50000;
+const MILLE = 1000;
+const SIZE = 100 * MILLE;
+const SITES = 10 * MILLE;
 
 export type VFace = {
   va: number;
@@ -59,18 +60,24 @@ export default class VoronoiWorld{
   }
 
   private generateDiagram = () => {
+    const FACTOR = 100;
     const startX = 0;
     const startY = 0;
     const bbox = {xl: startX, xr: startX + SIZE, yt: startY, yb: startY + SIZE}; 
     const rsites = (): Array<{x: number, y: number}> => {
       return new Array(SITES).fill(0).map( () => 
-      {return { x: this.rng.nextRange(bbox.xl, bbox.xr), y: this.rng.nextRange(bbox.yb, bbox.yt) }});
+      {return { x: this.rng.nextRange(bbox.xl *FACTOR, bbox.xr*FACTOR)/FACTOR, y: this.rng.nextRange(bbox.yb*FACTOR, bbox.yt*FACTOR)/FACTOR }});
     }  
     const vor = new voronoi();
-    this.diagram = vor.compute(rsites(), bbox);   
+    let raw_sites = rsites();
+    console.log(raw_sites);
+    this.diagram = vor.compute(raw_sites, bbox);    
     this.diagram.bbox = bbox;
-    
     this.relaxDiagram(bbox);
+    this.relaxDiagram(bbox);
+    this.relaxDiagram(bbox);
+    this.relaxDiagram(bbox);
+    console.log(`Generated relaxed ${this.diagram.cells.length} out of ${raw_sites.length} sites`); 
   }
   relaxDiagram = (bbox: any) => {
     const vor = new voronoi();
@@ -78,6 +85,7 @@ export default class VoronoiWorld{
     this.diagram = vor.compute(newsites, bbox);   
   }
   private loadDiagram = () => {
+    console.log(`Loadin ${this.diagram.cells.length} cells`);
     this.diagram.cells
       .sort( (c1: VCell, c2: VCell) =>  c1.site.voronoiId < c2.site.voronoiId ? -1 : 1  )
       .map( (c) => {
