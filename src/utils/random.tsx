@@ -8,7 +8,7 @@ export default class RNG {
 
   constructor(seed: any){
     if (Object.prototype.toString.call(seed) === "[object String]"){
-      console.log('string seed');
+      // console.log('string seed');
       seed = this.hashCode(seed);
     }
     this.m = 0x80000000; // 2**31;

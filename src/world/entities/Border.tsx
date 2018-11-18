@@ -7,5 +7,8 @@ export default class Border extends Line{
     this.start = start;
     this.end = end;
     this.setGeometry(this.generateGeometry(this.start, this.end));
+    if (start.y == end.y && start.y == 0){
+      this.line.visible = false;
+    }
   }
 }

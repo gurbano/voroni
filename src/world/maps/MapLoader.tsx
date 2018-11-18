@@ -48,7 +48,7 @@ export default class MapLoader {
       data[index] = {height: terrain.cells[index].data.height + rng.nextRange(-20, 50) };
     });
     */
-   let maxh = 1000;
+   let maxh = 5000;
    let ret = new Map<number,any>();
     this.load_image(level, terrain.size ,(data: Float32Array, width: number, height: number) => {
       new Array(terrain.cells.length).fill(0).forEach( (_, index) => {

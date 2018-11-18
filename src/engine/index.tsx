@@ -36,13 +36,9 @@ export default class Engine {
   private initScene(){
     var scene = new THREE.Scene();
     scene.background = new THREE.Color( Math.random() * 0x10 );
-    var ambientLight = new THREE.AmbientLight( 0xf0f0f0  );
-    scene.add( ambientLight );
-    var plight = new THREE.Light('red', 100) ;
-    plight.position.x = 500;
-    plight.position.y = 0;
-    plight.position.z = 500;
-    scene.add( plight );
+    // var ambientLight = new THREE.AmbientLight( 0xf0f0f0  );
+    // scene.add( ambientLight );
+   
     // scene.add( new GridHelper(2000, 20) );
     this.camera.lookAt(new Vector3(500,0,500));
     this.scene = scene;
@@ -51,7 +47,7 @@ export default class Engine {
     // let frustumSize = 1000;
     // let aspect = this.state.width / this.state.height;
     //let camera = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, -20000, 20000 );
-    let camera = new THREE.PerspectiveCamera( 50, 1, 0.1, 20000 ); 
+    let camera = new THREE.PerspectiveCamera( 50, 1, 0.1, 200000 ); 
     camera.position.x = 0;
     camera.position.y = 500;
     camera.position.z = 0;

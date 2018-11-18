@@ -1,9 +1,10 @@
 import RNG from "src/BNW3D/BNW/utils/random";
 import { VDiagram, VCell, VEdge, VVErtex, VHEdge } from "../types/types";
+import VoronoiUtils from "./voronoiUtils";
 const voronoi = require('../vendor/voronoi');
 
-const SIZE = 10 * 1000;
-const SITES = 10 * 1000;
+const SIZE = 60 * 1000;
+const SITES = 50000;
 
 export type VFace = {
   va: number;
@@ -29,6 +30,7 @@ export default class VoronoiWorld{
   cells: Array<XCell>;
   vertices: Array<XVertex>;
   size: number;
+  utils: VoronoiUtils;
   private verticesMap: Map<string, XVertex>;
   private pushVertex = (v: VVErtex): XVertex => {
     let id = `v${v.x}-${v.y}`;
@@ -48,6 +50,7 @@ export default class VoronoiWorld{
     this.cells = [];
     this.vertices = [];
     this.verticesMap = new Map<string, XVertex>();
+    this.utils = new VoronoiUtils();
     this.size = SIZE;
   }
   init = () => {
@@ -64,8 +67,15 @@ export default class VoronoiWorld{
       {return { x: this.rng.nextRange(bbox.xl, bbox.xr), y: this.rng.nextRange(bbox.yb, bbox.yt) }});
     }  
     const vor = new voronoi();
-    this.diagram = vor.compute(rsites(), bbox);
+    this.diagram = vor.compute(rsites(), bbox);   
     this.diagram.bbox = bbox;
+    
+    this.relaxDiagram(bbox);
+  }
+  relaxDiagram = (bbox: any) => {
+    const vor = new voronoi();
+    let newsites = this.utils.relaxSites(this.diagram);
+    this.diagram = vor.compute(newsites, bbox);   
   }
   private loadDiagram = () => {
     this.diagram.cells
