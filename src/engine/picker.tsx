@@ -1,6 +1,9 @@
 
 import { Object3D, Vector2, Raycaster, Camera, Scene, Vector3, Intersection } from "three";
 import Engine from "./";
+import Border from "../world/entities/Border";
+import TerrainContainer from "../world/entities/TerrainContainer";
+import Terrain from "../world/entities/Terrain";
 
 
 class Picker {
@@ -50,3 +53,30 @@ class Picker {
 }
 
 export default Picker;
+
+
+
+export const FaceBorderPicker = (terrainContainer: TerrainContainer, terrain: Terrain) => (point: Vector3, intersect: Intersection[]) => {
+   intersect.map( (isect) => {
+    if(isect.faceIndex){
+      const tface = terrain.faces[isect.faceIndex];
+      if (tface){
+        let border: Border = terrainContainer.faceBorder[tface.index];
+        border.getObject().visible = true;
+      }
+    }
+  });
+};
+
+export const CellBorderPicker = (terrainContainer: TerrainContainer, terrain: Terrain) => (point: Vector3, intersect: Intersection[]) => {
+  intersect.map( (isect) => {
+     if(isect.faceIndex){
+      const tface = terrain.faces[isect.faceIndex];
+      if (tface){
+        terrainContainer.cellBorders[tface.cell.id].map( (border: Border) => {          
+          border.getObject().visible = true;
+        });
+      }
+    }
+  });
+};

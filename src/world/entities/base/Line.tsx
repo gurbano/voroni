@@ -1,7 +1,7 @@
 import BaseEntity from "../BaseEntity";
 import { Object3D, Geometry, LineBasicMaterial, Vector3 } from "three";
 import * as THREE from "three";
-import { TBorder } from "../Terrain";
+import { TBorder, TFace } from "../Terrain";
 
 type P3D = {x: number, y: number, z: number};
 
@@ -11,12 +11,14 @@ export default class Line extends BaseEntity{
   edge: TBorder;
   geom: Geometry;
   line: THREE.Line;
+  face: TFace;
   
-  constructor(start: P3D, end: P3D, edge: TBorder){
+  constructor(start: P3D, end: P3D, edge: TBorder, face: TFace){
     super(0,0,0);
     this.start = start;
     this.end = end;
     this.edge = edge;
+    this.face = face;
   }
   generateMesh = (): Object3D => {
     this.geom = this.generateGeometry(this.start, this.end);
@@ -28,7 +30,7 @@ export default class Line extends BaseEntity{
     this.line.geometry = geom;
   }
   update = (delta: number) => {
-    
+    console.log('update');
   }
   generateMaterial = () => {
     return new LineBasicMaterial( { color: 0xcc0000 } );

@@ -1,5 +1,5 @@
 import BaseEntity from "./BaseEntity";
-import { Object3D, Vector3, Geometry, Mesh, FaceColors, Face3, MeshNormalMaterial, Color, MeshToonMaterial, Scene, Texture, ImageUtils, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial,  } from "three";
+import { Object3D, Vector3, Geometry, Mesh, FaceColors, Face3, MeshNormalMaterial, Color, MeshToonMaterial, Scene, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial,  } from "three";
 import VoronoiWorld, { XVertex, XCell, VFace, XEdge } from "../voronoiWorld";
 import { CellData, FaceData, STEEP } from "../data";
 
@@ -10,7 +10,7 @@ type TCell = {
   cell: XCell;
   center: number;
 }
-type TFace = {
+export type TFace = {
   index: number; //index in geometry.faces
   cell: TCell; 
   data: Partial<FaceData>;
@@ -25,6 +25,7 @@ export type TBorder = {
   start: number;
   end: number;
   edge: XEdge;
+  face: TFace;
 }
 export default class Terrain extends BaseEntity {
   source: VoronoiWorld;
@@ -55,13 +56,17 @@ export default class Terrain extends BaseEntity {
     
   }
   registerWithTexture = (scene: Scene, cb: (terrain: Terrain) => any) => {
+    /*
     ImageUtils.loadTexture("./fiord.png", undefined,
       (earthTexture: Texture | undefined) => {
         // earthTexture
         this.earthTexture = earthTexture;
         scene.add(this.getObject());
         cb(this);
-      });    
+      });  
+    */
+   scene.add(this.getObject());
+   cb(this);
   }
   prepareFaceData = (): Map<number, any> => {
     let ret = new Map();
@@ -170,21 +175,15 @@ export default class Terrain extends BaseEntity {
         },
       };
       cell.faces.map( (face: VFace, index: number) => {
-        let tface = new Face3( face.va, face.vb, face.vc );
-        tface.materialIndex = this.MATERIAL_INDEX;
-        tface.color.setRGB( 1, 1, 1);
+        let geom_face = new Face3( face.va, face.vb, face.vc );
+        geom_face.materialIndex = this.MATERIAL_INDEX;
+        geom_face.color.setRGB( 1, 1, 1);
         tcell.faces.push(geom.faces.length); // save face index
         this.corners[face.vb].cells.push(cell.site.voronoiId);
         // this.corners[face.vc].cells.push(cell.site.voronoiId);
-        const border = {
-          start: face.vb,
-          end: face.vc,
-          edge: face.edge
-        };
-        this.borders.push(border);
-        geom.faces.push( tface ); 
-        
-        this.faces.push({
+        geom.faces.push( geom_face ); 
+        // terrain.faces
+        let tface: TFace = {
           index: this.faces.length,
           cell: tcell,
           oppositeCell: getOppositeCell(face, tcell.id),
@@ -193,7 +192,16 @@ export default class Terrain extends BaseEntity {
             steepness: STEEP.FLAT,
             biomes: [],      
           }
-        });
+        };
+        this.faces.push(tface);
+        //terrain.borders
+        const border = {
+          start: face.vb,
+          end: face.vc,
+          edge: face.edge,
+          face: tface,
+        };
+        this.borders.push(border);
       });
       this.cells.push(tcell);
     });

@@ -2,13 +2,13 @@ import Engine from './engine/';
 import VoronoiWorld from './world/voronoiWorld';
 import './index.css';
 import loop from './utils/loop';
-import Terrain from './world/entities/Terrain';
+import Terrain, {  } from './world/entities/Terrain';
 import Ocean from './world/entities/Ocean';
 import { bindControls } from 'src/BNW3D/renderer/controls';
 import RNG from './utils/random';
 import TerrainContainer from './world/entities/TerrainContainer';
 import MapLoader from './world/maps/MapLoader';
-import Picker from './engine/picker';
+import Picker, { CellBorderPicker, FaceBorderPicker } from './engine/picker';
 import { Vector3, Intersection, DirectionalLight, PointLight } from 'three';
 import { CellData } from './world/data';
 import { Facedata } from './BNW3D/BNW/api/DWorld';
@@ -35,41 +35,30 @@ let controls = bindControls(engine.getCamera());
 controls.target.set( terrain.size/2, 0, terrain.size/2);
 controls.update();
 
+var light = new DirectionalLight( 0xff9999, 1 );
+light.position.set( 1, 1, 1 ).normalize();
+engine.scene.add(light);
+
+var plight = new PointLight('white', 1.8) ;
+plight.position.x = 0;
+plight.position.y = 0;
+plight.position.z = 0;
+engine.scene.add( plight );
 
 terrain.registerWithTexture(engine.scene, 
     (terrain) => {
+      console.log('loaded');
       terrainContainer.update();
       terrainContainer.showBorders(false);
       terrainContainer.showPois(false);
       let mappLoader = new MapLoader();
-
-
-      var light = new DirectionalLight( 0xff9999, 0.8 );
-      light.position.set( 1, 1, 1 ).normalize();
-      engine.scene.add(light);
-
-      var plight = new PointLight('white', .8) ;
-      plight.position.x = 0;
-      plight.position.y = 0;
-      plight.position.z = 0;
-      // engine.scene.add( plight );
-
       // PICKER
+      const faceBorder = FaceBorderPicker(terrainContainer, terrain);
+      const cellBorder = CellBorderPicker(terrainContainer, terrain);
       new Picker(engine, (point: Vector3, intersect: Intersection[]) => {
         terrainContainer.showBorders(false);
-        intersect.map( (isect) => {
-          // console.log(isect, {...point}, )
-          if(isect.faceIndex){
-            const tface = terrain.faces[isect.faceIndex];
-            if (tface){
-              // console.log(tface, tface.cell);
-              console.log(tface.cell.id, tface.oppositeCell)
-              terrainContainer.cellBorders[tface.cell.id].map( (border: any) => {          
-                border.getObject().visible = true;
-              });
-            }
-          }
-        } );      
+        faceBorder(point, intersect);
+        cellBorder(point, intersect);
         plight.position.set(point.x, point.y + 100, point.z);
         plight.lookAt(point.x, point.y - 10, point.z);
       });
@@ -139,9 +128,10 @@ terrain.registerWithTexture(engine.scene,
         updateHumidity();
         updateSteepness();
         updateBiomes();
+        terrain.getObject().visible = true;
       });
 
-      terrain.getObject().visible = true;
+      terrain.getObject().visible = false;
 
     });
     

@@ -20,12 +20,14 @@ export default class TerrainContainer {
   borders: Array<Border> | undefined;
   pois: Array<POI> | undefined;
   cellBorders: Map<number, Array<Border>>;
+  faceBorder: Map<number, Border>;
   constructor(terrain: Terrain, scene: Scene){
     this.terrain = terrain;
     this.scene = scene;
     this.borders = undefined;
     this.pois = undefined;
     this.cellBorders = new Map();
+    this.faceBorder = new Map();
   }
   showBorders = (toggle: boolean) => {
     this.borders && this.borders.map( (b) =>{
@@ -37,8 +39,9 @@ export default class TerrainContainer {
     this.borders = this.terrain.borders.map( (edge) => {
       let start = this.terrain.geom.vertices[edge.start];
       let end = this.terrain.geom.vertices[edge.end];
-      let border = new Border(start,end, edge);
+      const border = new Border(start,end, edge, edge.face);
       g.add(border.getObject());
+      this.faceBorder[edge.face.index] = border;
       if (edge.edge && edge.edge.lSite){
         if (!this.cellBorders[edge.edge.lSite.voronoiId]){
           this.cellBorders[edge.edge.lSite.voronoiId] = new Array();
